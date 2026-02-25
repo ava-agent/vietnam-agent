@@ -1,97 +1,130 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 越南旅游指南 (Vietnam Travel Guide)
 
-# Getting Started
+一站式越南旅游指南原生移动应用，为中国游客量身打造。
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 功能模块
 
-## Step 1: Start Metro
+### 1. 越南必备物品
+- 6大分类，40+物品清单
+- 勾选状态本地持久化 (AsyncStorage)
+- 进度追踪，一键全选/清除
+- 必备物品高亮标注 + 小贴士
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### 2. 越南金钱换算
+- 实时人民币/越南盾汇率换算
+- 快捷金额一键转换
+- 越南物价参考 (12项常见消费)
+- 换钱小贴士 (银行/ATM/黑市)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### 3. 常用软件推荐
+- 12款精选App (Grab/Google Maps/Booking等)
+- 分类筛选 (交通/导航/住宿/支付/通讯/美食/工具)
+- 一键跳转应用商店下载
+- 展开查看使用技巧
 
-```sh
-# Using npm
-npm start
+### 4. 景点攻略
+- 5大热门城市 (胡志明市/河内/岘港/芽庄/富国岛)
+- 每城包含：景点/美食/交通/预算
+- 景点评分、门票、开放时间
+- 每日预算参考 (经济/中等/舒适)
 
-# OR using Yarn
-yarn start
+## 技术栈
+
+| 技术 | 版本 |
+|------|------|
+| React Native | 0.84.0 |
+| TypeScript | 5.8+ |
+| React Navigation | 7.x |
+| AsyncStorage | 2.x |
+| Vector Icons (Ionicons) | 10.x |
+
+## 项目结构
+
+```
+src/
+├── components/common/    # 通用组件 (Card, Badge, SectionHeader)
+├── constants/            # 字符串常量
+├── context/              # ChecklistContext (状态管理)
+├── data/                 # 静态数据 (清单/汇率/App/景点)
+├── hooks/                # 自定义Hooks
+├── navigation/           # 导航配置 (Tab + Stack)
+├── screens/              # 页面组件
+│   ├── checklist/        # 必备物品 (列表 + 详情)
+│   ├── currency/         # 金钱换算
+│   ├── apps/             # 常用软件
+│   └── attractions/      # 景点攻略 (列表 + 城市详情)
+├── theme/                # 主题系统 (颜色/字体/间距/阴影)
+├── types/                # TypeScript类型定义
+└── utils/                # 工具函数 (格式化/存储/链接)
 ```
 
-## Step 2: Build and run your app
+## 快速开始
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### 环境要求
+- Node.js >= 22
+- JDK 17 (Android)
+- Xcode 15+ (iOS, macOS only)
 
-### Android
+### 安装
 
-```sh
-# Using npm
+```bash
+npm install
+```
+
+### 运行
+
+```bash
+# Android
 npm run android
 
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+# iOS
+cd ios && pod install && cd ..
 npm run ios
 
-# OR using Yarn
-yarn ios
+# Metro Dev Server
+npm start
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+### 测试
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```bash
+# 运行所有测试 (33个)
+npm test
 
-## Step 3: Modify your app
+# TypeScript 类型检查
+npx tsc --noEmit
 
-Now that you have successfully run the app, let's make changes!
+# ESLint 代码规范
+npx eslint src/ App.tsx
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## 构建发布
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Android APK
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```bash
+cd android && ./gradlew assembleRelease
+```
 
-## Congratulations! :tada:
+输出路径: `android/app/build/outputs/apk/release/app-release.apk`
 
-You've successfully run and modified your React Native App. :partying_face:
+> 注意: Release构建需要在 `android/gradle.properties` 中配置签名密钥
 
-### Now what?
+### CI/CD
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+项目配置了 GitHub Actions 自动化流水线:
+- **推送 main**: 自动构建 APK + 运行测试
+- **创建 Tag (v\*)**: 自动发布 GitHub Release 并上传 APK
+- **Pull Request**: 自动运行 TypeScript 检查 + Jest 测试
 
-# Troubleshooting
+## 代码质量
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+- TypeScript 严格模式 - 零错误
+- ESLint - 零警告
+- Jest 测试 - 33个测试全部通过
+- 无障碍支持 - accessibilityRole/accessibilityLabel
+- 性能优化 - useCallback/useMemo/React.memo
 
-# Learn More
+## License
 
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+MIT

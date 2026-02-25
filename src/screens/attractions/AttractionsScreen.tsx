@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   View,
   Text,
@@ -43,6 +43,18 @@ const cityIcons = [
 
 export const AttractionsScreen: React.FC<Props> = ({navigation}) => {
   const featuredCity = citiesData[0];
+  const otherCities = citiesData.slice(1);
+
+  const navigateToCity = useCallback(
+    (cityId: string, cityName: string) => {
+      navigation.navigate('CityDetail', {cityId, cityName});
+    },
+    [navigation],
+  );
+
+  if (!featuredCity) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -54,12 +66,9 @@ export const AttractionsScreen: React.FC<Props> = ({navigation}) => {
         <TouchableOpacity
           style={styles.featuredCard}
           activeOpacity={0.8}
-          onPress={() =>
-            navigation.navigate('CityDetail', {
-              cityId: featuredCity.id,
-              cityName: featuredCity.name,
-            })
-          }>
+          accessibilityRole="button"
+          accessibilityLabel={`${featuredCity.name} ${featuredCity.englishName}`}
+          onPress={() => navigateToCity(featuredCity.id, featuredCity.name)}>
           <View style={[styles.featuredBg, {backgroundColor: cityColors[0]}]}>
             <Icon name={cityIcons[0]} size={80} color="rgba(255,255,255,0.3)" />
           </View>
@@ -88,24 +97,21 @@ export const AttractionsScreen: React.FC<Props> = ({navigation}) => {
         </View>
 
         <View style={styles.cityGrid}>
-          {citiesData.slice(1).map((city, index) => (
+          {otherCities.map((city, index) => (
             <TouchableOpacity
               key={city.id}
               style={styles.cityCard}
               activeOpacity={0.8}
-              onPress={() =>
-                navigation.navigate('CityDetail', {
-                  cityId: city.id,
-                  cityName: city.name,
-                })
-              }>
+              accessibilityRole="button"
+              accessibilityLabel={`${city.name} ${city.englishName}`}
+              onPress={() => navigateToCity(city.id, city.name)}>
               <View
                 style={[
                   styles.cityBg,
-                  {backgroundColor: cityColors[index + 1]},
+                  {backgroundColor: cityColors[(index + 1) % cityColors.length]},
                 ]}>
                 <Icon
-                  name={cityIcons[index + 1]}
+                  name={cityIcons[(index + 1) % cityIcons.length]}
                   size={40}
                   color="rgba(255,255,255,0.3)"
                 />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,10 @@ export const CurrencyScreen: React.FC = () => {
     useCurrencyConverter(exchangeRate.rate);
   const [expandedTip, setExpandedTip] = React.useState<string | null>(null);
 
+  const toggleTip = useCallback((tipId: string) => {
+    setExpandedTip(prev => (prev === tipId ? null : tipId));
+  }, []);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
@@ -40,6 +44,8 @@ export const CurrencyScreen: React.FC = () => {
               placeholder={strings.inputPlaceholder}
               placeholderTextColor={colors.textTertiary}
               keyboardType="decimal-pad"
+              accessibilityLabel={strings.cnyLabel}
+              accessibilityHint={strings.inputPlaceholder}
             />
           </View>
 
@@ -75,6 +81,8 @@ export const CurrencyScreen: React.FC = () => {
                 styles.quickButton,
                 cnyAmount === item.cny.toString() && styles.quickButtonActive,
               ]}
+              accessibilityRole="button"
+              accessibilityLabel={item.label}
               onPress={() => setQuickAmount(item.cny)}>
               <Text
                 style={[
@@ -116,9 +124,9 @@ export const CurrencyScreen: React.FC = () => {
             key={tip.id}
             style={styles.tipCard}
             activeOpacity={0.7}
-            onPress={() =>
-              setExpandedTip(expandedTip === tip.id ? null : tip.id)
-            }>
+            accessibilityRole="button"
+            accessibilityLabel={tip.title}
+            onPress={() => toggleTip(tip.id)}>
             <View style={styles.tipHeader}>
               <Icon name={tip.icon} size={20} color={colors.primary} />
               <Text style={styles.tipTitle}>{tip.title}</Text>

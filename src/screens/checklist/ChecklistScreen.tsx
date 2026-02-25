@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   View,
   Text,
@@ -29,6 +29,13 @@ export const ChecklistScreen: React.FC<Props> = ({navigation}) => {
       ? Math.round((totalProgress.checked / totalProgress.total) * 100)
       : 0;
 
+  const navigateToCategory = useCallback(
+    (categoryId: string, categoryName: string) => {
+      navigation.navigate('ChecklistDetail', {categoryId, categoryName});
+    },
+    [navigation],
+  );
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
@@ -52,7 +59,7 @@ export const ChecklistScreen: React.FC<Props> = ({navigation}) => {
           <Text style={styles.progressPercent}>{totalPercent}%</Text>
         </Card>
 
-        <SectionHeader title="物品分类" />
+        <SectionHeader title={strings.itemCategories} />
 
         {checklistData.map(category => {
           const progress = getProgressForCategory(category.id);
@@ -66,12 +73,9 @@ export const ChecklistScreen: React.FC<Props> = ({navigation}) => {
               key={category.id}
               style={styles.categoryCard}
               activeOpacity={0.7}
-              onPress={() =>
-                navigation.navigate('ChecklistDetail', {
-                  categoryId: category.id,
-                  categoryName: category.name,
-                })
-              }>
+              accessibilityRole="button"
+              accessibilityLabel={`${category.name} ${progress.checked}/${progress.total} ${strings.packed}`}
+              onPress={() => navigateToCategory(category.id, category.name)}>
               <View
                 style={[styles.iconContainer, {backgroundColor: category.color + '15'}]}>
                 <Icon name={category.icon} size={24} color={category.color} />
@@ -90,7 +94,7 @@ export const ChecklistScreen: React.FC<Props> = ({navigation}) => {
                   />
                 </View>
                 <Text style={styles.categoryCount}>
-                  {progress.checked}/{progress.total} 已准备
+                  {progress.checked}/{progress.total} {strings.packed}
                 </Text>
               </View>
               <Icon

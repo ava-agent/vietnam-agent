@@ -16,6 +16,8 @@ export const strings = {
   tip: '小贴士',
   itemsPacked: '已准备',
   overallProgress: '整体进度',
+  itemCategories: '物品分类',
+  packed: '已准备',
 
   // Currency
   currencyTitle: '越南金钱换算',
@@ -38,6 +40,9 @@ export const strings = {
   categoryNavigation: '导航',
   categoryAccommodation: '住宿',
   categoryUtility: '实用工具',
+  recommendedAppsCount: (count: number) => `${count} 个推荐应用`,
+  tapToSeeTips: '点击卡片查看使用技巧',
+  usageTips: '使用技巧:',
 
   // Attractions
   attractionsTitle: '越南景点攻略',
@@ -51,4 +56,17 @@ export const strings = {
   budget: '经济',
   midRange: '中等',
   luxury: '舒适',
+  tipsLabel: '小贴士:',
+  budgetCategory: '类别',
+  budgetNote: '* 以上为每人每天预算参考 (人民币)',
+
+  // Accessibility
+  goBack: '返回',
+  toggleItem: '切换物品状态',
+  openLink: '打开链接',
+  linkOpenFailed: '无法打开链接',
+
+  // Error states
+  dataNotFound: '数据未找到',
+  goBackToList: '返回列表',
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Platform,
   Linking,
+  Alert,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -22,10 +23,16 @@ export const AppsScreen: React.FC = () => {
     useAppFilter(recommendedApps);
   const [expandedApp, setExpandedApp] = React.useState<string | null>(null);
 
-  const handleDownload = (iosUrl: string, androidUrl: string) => {
+  const handleDownload = useCallback((iosUrl: string, androidUrl: string) => {
     const url = Platform.select({ios: iosUrl, android: androidUrl}) ?? iosUrl;
-    Linking.openURL(url).catch(() => {});
-  };
+    Linking.openURL(url).catch(() => {
+      Alert.alert(strings.linkOpenFailed);
+    });
+  }, []);
+
+  const toggleApp = useCallback((appId: string) => {
+    setExpandedApp(prev => (prev === appId ? null : appId));
+  }, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -45,6 +52,9 @@ export const AppsScreen: React.FC = () => {
                 styles.filterChip,
                 selectedCategory === cat.key && styles.filterChipActive,
               ]}
+              accessibilityRole="button"
+              accessibilityState={{selected: selectedCategory === cat.key}}
+              accessibilityLabel={cat.label}
               onPress={() => setSelectedCategory(cat.key)}>
               <Text
                 style={[
@@ -58,8 +68,8 @@ export const AppsScreen: React.FC = () => {
         </ScrollView>
 
         <SectionHeader
-          title={`${filteredApps.length} 个推荐应用`}
-          subtitle="点击卡片查看使用技巧"
+          title={strings.recommendedAppsCount(filteredApps.length)}
+          subtitle={strings.tapToSeeTips}
         />
 
         {filteredApps.map(app => (
@@ -67,9 +77,9 @@ export const AppsScreen: React.FC = () => {
             key={app.id}
             style={styles.appCard}
             activeOpacity={0.7}
-            onPress={() =>
-              setExpandedApp(expandedApp === app.id ? null : app.id)
-            }>
+            accessibilityRole="button"
+            accessibilityLabel={`${app.name} ${app.chineseName}`}
+            onPress={() => toggleApp(app.id)}>
             <View style={styles.appRow}>
               <View style={styles.appIconContainer}>
                 <Icon name={app.icon} size={28} color={colors.primary} />
@@ -90,6 +100,8 @@ export const AppsScreen: React.FC = () => {
               </View>
               <TouchableOpacity
                 style={styles.downloadButton}
+                accessibilityRole="button"
+                accessibilityLabel={`${strings.download} ${app.name}`}
                 onPress={() => handleDownload(app.iosUrl, app.androidUrl)}>
                 <Text style={styles.downloadText}>{strings.download}</Text>
               </TouchableOpacity>
@@ -98,7 +110,7 @@ export const AppsScreen: React.FC = () => {
 
             {expandedApp === app.id && app.tips.length > 0 && (
               <View style={styles.tipsSection}>
-                <Text style={styles.tipsTitle}>使用技巧:</Text>
+                <Text style={styles.tipsTitle}>{strings.usageTips}</Text>
                 {app.tips.map((tip, index) => (
                   <View key={`tip-${index}`} style={styles.tipRow}>
                     <Text style={styles.tipBullet}>•</Text>

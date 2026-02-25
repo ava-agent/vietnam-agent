@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -40,8 +40,35 @@ export const ChecklistDetailScreen: React.FC<Props> = ({
   const [expandedTip, setExpandedTip] = useState<string | null>(null);
 
   const category = checklistData.find(c => c.id === categoryId);
+
+  const toggleTip = useCallback((itemId: string) => {
+    setExpandedTip(prev => (prev === itemId ? null : itemId));
+  }, []);
+
+  const handleCheckAll = useCallback(() => {
+    checkAllInCategory(categoryId);
+  }, [checkAllInCategory, categoryId]);
+
+  const handleUncheckAll = useCallback(() => {
+    uncheckAllInCategory(categoryId);
+  }, [uncheckAllInCategory, categoryId]);
+
   if (!category) {
-    return null;
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.emptyState}>
+          <Icon name="alert-circle-outline" size={48} color={colors.textTertiary} />
+          <Text style={styles.emptyText}>{strings.dataNotFound}</Text>
+          <TouchableOpacity
+            style={styles.emptyButton}
+            accessibilityRole="button"
+            accessibilityLabel={strings.goBack}
+            onPress={() => navigation.goBack()}>
+            <Text style={styles.emptyButtonText}>{strings.goBackToList}</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   const progress = getProgressForCategory(categoryId);
@@ -55,7 +82,9 @@ export const ChecklistDetailScreen: React.FC<Props> = ({
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}>
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel={strings.goBack}>
           <Icon name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{categoryName}</Text>
@@ -65,7 +94,7 @@ export const ChecklistDetailScreen: React.FC<Props> = ({
       <View style={styles.progressSection}>
         <View style={styles.progressRow}>
           <Text style={styles.progressText}>
-            {progress.checked}/{progress.total} 已准备
+            {progress.checked}/{progress.total} {strings.packed}
           </Text>
           <Text style={styles.progressPercent}>{percent}%</Text>
         </View>
@@ -91,6 +120,9 @@ export const ChecklistDetailScreen: React.FC<Props> = ({
               <TouchableOpacity
                 style={styles.itemRow}
                 activeOpacity={0.7}
+                accessibilityRole="checkbox"
+                accessibilityState={{checked: isChecked}}
+                accessibilityLabel={`${item.name} ${item.description}`}
                 onPress={() => toggleItem(item.id)}>
                 <View
                   style={[
@@ -125,10 +157,10 @@ export const ChecklistDetailScreen: React.FC<Props> = ({
                 </View>
                 {item.tip && (
                   <TouchableOpacity
-                    onPress={() =>
-                      setExpandedTip(isTipExpanded ? null : item.id)
-                    }
-                    style={styles.tipButton}>
+                    onPress={() => toggleTip(item.id)}
+                    style={styles.tipButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={strings.tip}>
                     <Icon
                       name="information-circle-outline"
                       size={20}
@@ -155,12 +187,16 @@ export const ChecklistDetailScreen: React.FC<Props> = ({
       <View style={styles.footer}>
         <TouchableOpacity
           style={[styles.footerButton, {backgroundColor: category.color}]}
-          onPress={() => checkAllInCategory(categoryId)}>
+          accessibilityRole="button"
+          accessibilityLabel={strings.checkAll}
+          onPress={handleCheckAll}>
           <Text style={styles.footerButtonText}>{strings.checkAll}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.footerButton, styles.footerButtonOutline]}
-          onPress={() => uncheckAllInCategory(categoryId)}>
+          accessibilityRole="button"
+          accessibilityLabel={strings.uncheckAll}
+          onPress={handleUncheckAll}>
           <Text
             style={[styles.footerButtonText, {color: colors.textSecondary}]}>
             {strings.uncheckAll}
@@ -305,6 +341,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.borderLight,
   },
   footerButtonText: {
+    ...typography.button,
+    color: colors.textInverse,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xxxl,
+  },
+  emptyText: {
+    ...typography.body,
+    color: colors.textTertiary,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  emptyButton: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+  },
+  emptyButtonText: {
     ...typography.button,
     color: colors.textInverse,
   },

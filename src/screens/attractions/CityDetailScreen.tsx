@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,21 @@ type Props = {
   route: RouteProp<AttractionsStackParamList, 'CityDetail'>;
 };
 
+const renderStars = (rating: number) => {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <Icon
+        key={i}
+        name={i <= rating ? 'star' : i - 0.5 <= rating ? 'star-half' : 'star-outline'}
+        size={14}
+        color={colors.secondary}
+      />,
+    );
+  }
+  return stars;
+};
+
 export const CityDetailScreen: React.FC<Props> = ({navigation, route}) => {
   const {cityId, cityName} = route.params;
   const city = citiesData.find(c => c.id === cityId);
@@ -32,31 +47,38 @@ export const CityDetailScreen: React.FC<Props> = ({navigation, route}) => {
     string | null
   >(null);
 
-  if (!city) {
-    return null;
-  }
+  const toggleAttraction = useCallback((attractionId: string) => {
+    setExpandedAttraction(prev =>
+      prev === attractionId ? null : attractionId,
+    );
+  }, []);
 
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Icon
-          key={i}
-          name={i <= rating ? 'star' : i - 0.5 <= rating ? 'star-half' : 'star-outline'}
-          size={14}
-          color={colors.secondary}
-        />,
-      );
-    }
-    return stars;
-  };
+  if (!city) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.emptyState}>
+          <Icon name="alert-circle-outline" size={48} color={colors.textTertiary} />
+          <Text style={styles.emptyText}>{strings.dataNotFound}</Text>
+          <TouchableOpacity
+            style={styles.emptyButton}
+            accessibilityRole="button"
+            accessibilityLabel={strings.goBack}
+            onPress={() => navigation.goBack()}>
+            <Text style={styles.emptyButtonText}>{strings.goBackToList}</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}>
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel={strings.goBack}>
           <Icon name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{cityName}</Text>
@@ -86,11 +108,9 @@ export const CityDetailScreen: React.FC<Props> = ({navigation, route}) => {
             key={attraction.id}
             style={styles.attractionCard}
             activeOpacity={0.7}
-            onPress={() =>
-              setExpandedAttraction(
-                expandedAttraction === attraction.id ? null : attraction.id,
-              )
-            }>
+            accessibilityRole="button"
+            accessibilityLabel={`${attraction.name} ${attraction.englishName}`}
+            onPress={() => toggleAttraction(attraction.id)}>
             <View style={styles.attractionHeader}>
               <View style={styles.attractionIcon}>
                 <Icon name="location" size={20} color={colors.primary} />
@@ -136,7 +156,7 @@ export const CityDetailScreen: React.FC<Props> = ({navigation, route}) => {
                 </View>
                 {attraction.tips.length > 0 && (
                   <View style={styles.tipsBox}>
-                    <Text style={styles.tipsLabel}>小贴士:</Text>
+                    <Text style={styles.tipsLabel}>{strings.tipsLabel}</Text>
                     {attraction.tips.map((tip, idx) => (
                       <Text key={`tip-${idx}`} style={styles.tipItem}>
                         • {tip}
@@ -194,7 +214,7 @@ export const CityDetailScreen: React.FC<Props> = ({navigation, route}) => {
         <Card style={styles.budgetCard}>
           <View style={styles.budgetHeaderRow}>
             <Text style={[styles.budgetCell, styles.budgetHeaderCell]}>
-              类别
+              {strings.budgetCategory}
             </Text>
             <Text style={[styles.budgetCell, styles.budgetHeaderCell]}>
               {strings.budget}
@@ -221,7 +241,7 @@ export const CityDetailScreen: React.FC<Props> = ({navigation, route}) => {
               <Text style={styles.budgetCell}>{item.highBudget}</Text>
             </View>
           ))}
-          <Text style={styles.budgetNote}>* 以上为每人每天预算参考 (人民币)</Text>
+          <Text style={styles.budgetNote}>{strings.budgetNote}</Text>
         </Card>
       </ScrollView>
     </SafeAreaView>
@@ -497,5 +517,27 @@ const styles = StyleSheet.create({
     color: colors.textTertiary,
     textAlign: 'center',
     marginTop: spacing.md,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xxxl,
+  },
+  emptyText: {
+    ...typography.body,
+    color: colors.textTertiary,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  emptyButton: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+  },
+  emptyButtonText: {
+    ...typography.button,
+    color: colors.textInverse,
   },
 });
