@@ -1,9 +1,5 @@
 # 越南旅游指南 (Vietnam Travel Guide)
 
-<p align="center">
-  <img src="docs/screenshots/app-preview.png" alt="App Preview" width="600">
-</p>
-
 一站式越南旅游指南原生移动应用，为中国游客量身打造，帮助您轻松规划越南之旅。
 
 ## 功能模块
@@ -206,7 +202,7 @@ cd android && ./gradlew assembleRelease
 
 ## 更新日志
 
-### v1.0.0 (2026-03-02)
+### v1.0.0 (2026-03-03)
 - 🎉 首次发布
 - ✨ 四大核心模块：必备物品、金钱换算、常用软件、景点攻略
 - 🎨 越南风格主题设计
