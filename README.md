@@ -2,6 +2,15 @@
 
 一站式越南旅游指南原生移动应用，为中国游客量身打造，帮助您轻松规划越南之旅。
 
+## 应用截图
+
+<p align="center">
+  <img src="docs/images/screenshot-checklist.png" width="24%" />
+  <img src="docs/images/screenshot-currency.png" width="24%" />
+  <img src="docs/images/screenshot-apps.png" width="24%" />
+  <img src="docs/images/screenshot-attractions.png" width="24%" />
+</p>
+
 ## 功能模块
 
 ![Core Feature Modules](docs/images/feature-modules.png)
