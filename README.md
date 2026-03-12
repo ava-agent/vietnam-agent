@@ -2,6 +2,19 @@
 
 一站式越南旅游指南原生移动应用，为中国游客量身打造，帮助您轻松规划越南之旅。
 
+## 下载安装
+
+**Android 用户**：直接下载 APK 安装即可，无需任何开发环境。
+
+[**> 点击下载最新版 APK <**](https://github.com/ava-agent/vietnam-agent/releases/latest)
+
+安装步骤：
+1. 下载 `.apk` 文件到手机
+2. 打开文件，允许"安装未知来源应用"
+3. 安装完成，打开即用
+
+> 系统要求：Android 7.0 及以上
+
 ## 应用截图
 
 <p align="center">
