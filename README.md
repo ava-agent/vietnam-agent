@@ -4,6 +4,8 @@
 
 ## 功能模块
 
+![Core Feature Modules](docs/images/feature-modules.png)
+
 ### 1. 🎒 越南必备物品
 - **6大分类**：证件类、衣物类、药品类、电子设备、洗漱用品、其他物品
 - **40+物品清单**：每个物品都有详细说明和实用小贴士
@@ -30,6 +32,61 @@
   - 美食推荐 (价格、特色、必点)
   - 交通指南 (机场到市区、市内交通)
   - 预算参考 (经济/中等/舒适三档)
+
+## 架构设计
+
+### 应用架构
+
+![App Architecture](docs/images/architecture.png)
+
+应用采用分层架构，从上到下依次为：
+- **入口层**：App.tsx 初始化 Providers（SafeAreaProvider → ErrorBoundary → ChecklistProvider → NavigationContainer）
+- **导航层**：Bottom Tab Navigator + Native Stack Navigator
+- **页面层**：4个主屏幕 + 2个详情页
+- **支撑层**：主题系统、Context状态管理、AsyncStorage持久化
+
+### 数据流
+
+![Data Flow](docs/images/data-flow.png)
+
+```
+静态数据 (src/data/) → Context / Hooks → Screens → Common Components
+                 ↕
+           AsyncStorage (持久化)
+```
+
+- **数据层**：所有旅游数据为静态数据，无需网络请求
+- **状态管理**：React Context + useReducer 管理清单勾选状态
+- **持久化**：AsyncStorage 自动保存/恢复清单进度
+- **业务逻辑**：自定义 Hooks (useCurrencyConverter, useAppFilter) 封装计算与筛选逻辑
+
+### 导航结构
+
+```
+RootNavigator (Bottom Tab)
+├── ChecklistTab → ChecklistStack
+│   ├── ChecklistScreen (分类列表)
+│   └── ChecklistDetailScreen (物品清单)
+├── CurrencyTab → CurrencyScreen (汇率换算)
+├── AppsTab → AppsScreen (软件推荐)
+└── AttractionsTab → AttractionsStack
+    ├── AttractionsScreen (城市列表)
+    └── CityDetailScreen (城市详情)
+```
+
+## 设计系统
+
+![Design System](docs/images/design-system.png)
+
+| 类别 | 说明 |
+|------|------|
+| 主色调 | Teal (#00897B) — 越南风格 |
+| 辅助色 | Amber (#FFB300) — 进度/评分 |
+| 强调色 | Red (#FF6B6B) — 必备标注 |
+| 字体 | iOS: PingFang SC / Android: 系统默认 |
+| 间距 | 4px 基础单位，8级渐变 (4-40px) |
+| 圆角 | 5级 (6/10/14/20/999px) |
+| 阴影 | iOS: Shadow / Android: Elevation |
 
 ## 技术栈
 
@@ -87,6 +144,7 @@ vietnam-agent/
 ├── __tests__/                  # 测试文件
 ├── android/                    # Android 原生代码
 ├── ios/                        # iOS 原生代码
+├── docs/images/                # 文档图示
 └── .github/workflows/          # CI/CD 配置
 ```
 
