@@ -88,6 +88,97 @@ RootNavigator (Bottom Tab)
 | 圆角 | 5级 (6/10/14/20/999px) |
 | 阴影 | iOS: Shadow / Android: Elevation |
 
+## AI Agent 架构设计
+
+本项目以越南旅游场景为载体，探索 AI Agent 的核心架构与执行模式。
+
+### 系统架构总览
+
+![AI Agent System Architecture](docs/images/ai-agent-architecture.png)
+
+Agent 系统采用四层架构：
+
+| 层级 | 职责 | 关键组件 |
+|------|------|----------|
+| **用户界面层** | 接收用户输入，展示响应 | React Native App |
+| **Agent 编排层** | 任务规划、记忆管理、工具调度 | Agent Controller, Memory, Tool Registry, Planning Engine |
+| **AI 引擎层** | 推理、检索、决策 | LLM, RAG, ReAct |
+| **数据与知识层** | 存储与外部接口 | Vector DB, Knowledge Base, External APIs |
+
+**核心设计原则**：Agent Controller 作为中枢，接收用户请求后通过 Planning Engine 将复杂任务拆解为子任务，再调用 LLM/RAG/ReAct 等引擎协同完成。Memory Module 保持上下文连续性，Tool Registry 管理可用工具集。
+
+### RAG 检索增强生成
+
+![RAG Pipeline](docs/images/rag-pipeline.png)
+
+RAG 解决了 LLM "知识截止"和"幻觉"问题，通过外部知识库增强生成质量：
+
+**在线查询流程** (Query Time):
+1. **User Query** — 用户提问，如"越南岘港有什么好玩的？"
+2. **Embedding** — 将问题通过 Embedding 模型转为向量 `[0.23, 0.87, ...]`
+3. **Retrieval** — 在 Vector Database 中检索 Top-K 相似文档（余弦相似度排序）
+4. **Context Assembly** — 将原始问题与检索到的文档片段拼接为增强上下文
+5. **Generation** — LLM 基于增强上下文生成准确、有据可依的回答
+6. **Response** — 返回包含真实景点数据的推荐结果
+
+**离线索引流程** (Index Time):
+```
+原始文档 → 文本分块 (Chunking) → 向量化 (Embedding) → 存入 Vector DB
+```
+
+**关键参数**：
+- `chunk_size`: 文档分块大小（通常 256-1024 tokens）
+- `top_k`: 检索返回的文档数量（通常 3-5）
+- `similarity_threshold`: 相似度阈值（过滤低质量结果）
+
+### ReAct 推理-行动循环
+
+![ReAct Pattern](docs/images/react-pattern.png)
+
+ReAct (Reasoning + Acting) 是 Agent 的核心执行模式，让 LLM 通过**交替推理与行动**来完成复杂任务：
+
+**循环三阶段**：
+
+| 阶段 | 英文 | 说明 | 示例 |
+|------|------|------|------|
+| **推理** | Thought | LLM 分析当前状态，决定下一步 | "需要查找胡志明市经济型酒店并换算价格" |
+| **执行** | Action | 调用外部工具获取信息 | `search_hotels(city='HCMC')`, `convert_currency(...)` |
+| **观察** | Observation | 接收工具返回结果 | "找到5家酒店，最便宜350,000 VND/晚 = ¥100" |
+
+循环持续直到 Agent 判断信息充足，输出最终回答。
+
+**对比传统 LLM**：
+```
+Traditional LLM:  Query → Response                          (单次推理，无工具)
+ReAct Agent:      Query → Think → Act → Observe → ... →    Response (多步推理，有工具)
+```
+
+### Agent 执行流程
+
+![LLM Agent Execution Flow](docs/images/agent-execution-flow.png)
+
+以"帮我规划3天越南行程"为例，展示 Agent 的完整执行泳道：
+
+1. **意图解析** — Agent 识别用户意图为"行程规划"
+2. **任务分解** — Planning Engine 将其拆解为 3 个子任务：
+   - Task 1: 查询景点信息 → Knowledge Base API
+   - Task 2: 计算预算 → Currency Converter
+   - Task 3: 规划路线 → Route Planner
+3. **并行执行** — 子任务可并行调用不同 Tools/APIs
+4. **结果聚合** — 将各工具返回数据整合
+5. **LLM 生成** — 基于聚合结果生成自然语言行程方案
+
+### 核心概念对照
+
+| 概念 | 全称 | 核心思想 | 本项目应用 |
+|------|------|----------|------------|
+| **LLM** | Large Language Model | 通过海量文本训练的语言理解与生成模型 | 理解用户旅游需求，生成个性化建议 |
+| **RAG** | Retrieval Augmented Generation | 检索外部知识增强生成准确性 | 从景点/美食/交通知识库检索实时数据 |
+| **ReAct** | Reasoning + Acting | 交替推理与行动的循环模式 | 多步骤行程规划（查→算→排→答） |
+| **Tool Use** | Function Calling | LLM 调用外部工具扩展能力 | 汇率 API、地图服务、酒店搜索 |
+| **Memory** | Context Management | 维护对话历史与用户偏好 | 记住用户预算偏好、已访问城市 |
+| **Planning** | Task Decomposition | 将复杂任务拆解为可执行子任务 | 3天行程 → 每日景点+餐饮+交通 |
+
 ## 技术栈
 
 | 技术 | 版本 | 用途 |
